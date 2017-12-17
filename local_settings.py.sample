@@ -2,13 +2,19 @@ import logging
 import os
 
 
-pathname = os.path.dirname(os.path.realpath(__file__))
-
-
 AUTH_TOKEN = "..."
 IP_ADDRESS = "..."
+PANEL_CLUSTERS = [  # Obtained through `aurora.py --info` and reading panelId values
+    (245, 190, 241),
+    (167, 151, 40),
+    (114, 217, 17),
+]
 
 
+# The WEATHER_FILE content is populated via an hourly cronjob from weather.gc.ca.
+# Example:
+#     curl -s http://dd.weather.gc.ca/citypage_weather/xml/BC/s0000141_e.xml > weather.html
+pathname = os.path.dirname(os.path.realpath(__file__))
 WEATHER_FILE = os.path.join(pathname, "weather.html")
 
 
@@ -20,3 +26,4 @@ handler = logging.FileHandler(logfile)
 handler.setLevel(logging.DEBUG)
 handler.setFormatter(logging.Formatter(fmt="[{asctime}][{filename:>10}:{lineno:>2}][{levelname:4.4}]  {message}", style="{"))
 logger.addHandler(handler)
+logger.addHandler(logging.StreamHandler())

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from local_settings import IP_ADDRESS, AUTH_TOKEN, logger
 from nanoleaf import Aurora
-from pprint import pprint
 import argparse
 import json
 
