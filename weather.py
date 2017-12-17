@@ -8,12 +8,15 @@ from utils import flatten
 
 
 # Color definitions (the last value is white balance, ignored but required)
-LIGHTGREY = [200, 200, 200, 0]
+WHITE = [255, 255, 255, 0]
+GREY = [32, 32, 32, 0]
+BLACK = [5, 5, 5, 0]
+
 LIGHTBLUE = [200, 200, 255, 0]
-DARKBLUE = [20, 20, 100, 0]
+BLUE = [5, 5, 50, 0]
+
 LIGHTYELLOW = [255, 255, 200, 0]
-MAGENTA = [255, 0, 255, 0]
-BLACK = [0, 0, 0, 0]
+MAGENTA = [255, 5, 255, 0]
 
 
 # Custom Effect Data Format as per http://forum.nanoleaf.me/docs/openapi
@@ -23,20 +26,18 @@ BLACK = [0, 0, 0, 0]
 # Timeframe: [Color, duration in 100ms increments]
 FORECAST_ANIMATIONS = {
     "Rain": [
-        [[DARKBLUE, 30], ],
-        [[DARKBLUE, 30], ],
-        [[DARKBLUE, 30], ],
+        [[BLUE, 10]],
     ],
     "A mix of sun and cloud": [
-        [[LIGHTYELLOW, 35], [LIGHTGREY, 35]],
+        [[LIGHTYELLOW, 35], [GREY, 35]],
     ],
     "Chance of showers": [
-        [[LIGHTGREY,  0], [DARKBLUE, 15], [LIGHTGREY, 30]],
-        [[LIGHTGREY, 15], [DARKBLUE, 15], [LIGHTGREY, 15]],
-        [[LIGHTGREY, 30], [DARKBLUE, 15], [LIGHTGREY,  0]],
+        [[BLUE, 10], [GREY, 30]],
+        [[GREY, 15], [BLUE, 10], [GREY, 15]],
+        [[GREY, 30], [BLUE, 10]],
     ],
     "Cloudy periods": [
-        [[LIGHTGREY, 35], [LIGHTBLUE, 35]],
+        [[GREY, 35], [LIGHTBLUE, 35]],
     ],
     "Clear": [
         [[LIGHTBLUE, 35], [LIGHTYELLOW, 35]],
@@ -67,7 +68,7 @@ try:
     anim_data = []
     for animation, cluster in zip(animations, PANEL_CLUSTERS):
         for index, panel in enumerate(cluster):
-            panel_animation = animation[index % len(animation)]
+            panel_animation = animation[len(anim_data) % len(animation)]
             anim_data.append([panel, len(panel_animation)] + list(panel_animation))
 
     # Composite the instructions into an Aurora command
