@@ -9,14 +9,14 @@ from utils import flatten
 
 # Color definitions (the last value is white balance, ignored but required)
 WHITE = [255, 255, 255, 0]
-GREY = [32, 32, 32, 0]
-BLACK = [5, 5, 5, 0]
+GREY = [128, 128, 128, 0]
+BLACK = [0, 0, 0, 0]
 
 LIGHTBLUE = [200, 200, 255, 0]
-BLUE = [5, 5, 50, 0]
+BLUE = [128, 128, 255, 0]
 
 LIGHTYELLOW = [255, 255, 200, 0]
-MAGENTA = [255, 5, 255, 0]
+MAGENTA = [255, 128, 255, 0]
 
 
 # Custom Effect Data Format as per http://forum.nanoleaf.me/docs/openapi
@@ -26,28 +26,28 @@ MAGENTA = [255, 5, 255, 0]
 # Timeframe: [Color, duration in 100ms increments]
 FORECAST_ANIMATIONS = {
     "Rain": [
-        [[BLUE, 10]],
+        [[BLUE, 50]],
     ],
     "A mix of sun and cloud": [
-        [[LIGHTYELLOW, 35], [GREY, 35]],
+        [[LIGHTYELLOW, 25], [GREY, 25]],
     ],
     "Chance of showers": [
-        [[BLUE, 10], [GREY, 30]],
-        [[GREY, 15], [BLUE, 10], [GREY, 15]],
-        [[GREY, 30], [BLUE, 10]],
+        [[BLUE, 20], [GREY, 30]],
+        [[GREY, 15], [BLUE, 20], [GREY, 15]],
+        [[GREY, 30], [BLUE, 20]],
     ],
     "Cloudy periods": [
-        [[GREY, 35], [LIGHTBLUE, 35]],
+        [[GREY, 25], [LIGHTBLUE, 25]],
     ],
     "Clear": [
-        [[LIGHTBLUE, 35], [LIGHTYELLOW, 35]],
+        [[LIGHTBLUE, 25], [LIGHTYELLOW, 25]],
     ],
     "Sunny": [
-        [[LIGHTYELLOW, 35], ],
+        [[LIGHTYELLOW, 50]],
     ],
 }
 UNKNOWN_CONDITION = [
-    [[MAGENTA, 10], ],
+    [[MAGENTA, 50]],
 ]
 
 
