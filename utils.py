@@ -1,4 +1,5 @@
 from copy import deepcopy
+from colorsys import hls_to_rgb
 
 
 # From https://gist.github.com/Wilfred/7889868
@@ -19,3 +20,10 @@ def flatten(nested_list):
             nested_list = sublist + nested_list
         else:
             yield sublist
+
+
+def hsl_to_rgbw(h, s, l):
+    return [
+        round(i * 255)
+        for i in hls_to_rgb(h, l, s)
+    ] + [0]

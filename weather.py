@@ -1,22 +1,17 @@
 #!/usr/bin/env python3
 from local_settings import IP_ADDRESS, AUTH_TOKEN, WEATHER_FILE, PANEL_CLUSTERS, logger
 from nanoleaf import Aurora
-from pprint import pprint
 from xml.etree.ElementTree import fromstring
 from xmljson import badgerfish
-from utils import flatten
+from utils import flatten, hsl_to_rgbw
 
-
-# Color definitions (the last value is white balance, ignored but required)
-WHITE = [255, 255, 255, 0]
-GREY = [128, 128, 128, 0]
-BLACK = [0, 0, 0, 0]
-
-LIGHTBLUE = [200, 200, 255, 0]
-BLUE = [128, 128, 255, 0]
-
-LIGHTYELLOW = [255, 255, 200, 0]
-MAGENTA = [255, 128, 255, 0]
+# Constants
+DURATION_IN_SECONDS = 10
+RAIN = hsl_to_rgbw(.7, .6, .3)
+SUN = hsl_to_rgbw(.2, .6, .6)
+CLEARNIGHT = hsl_to_rgbw(.2, .6, .6)
+CLOUD = hsl_to_rgbw(0, 0, .6)
+SNOW = hsl_to_rgbw(.5, .6, .6)
 
 
 # Custom Effect Data Format as per http://forum.nanoleaf.me/docs/openapi
@@ -24,30 +19,35 @@ MAGENTA = [255, 128, 255, 0]
 # Value is the panels in the panel cluster: [Panel1, Panel2, ...]
 # Panel: [Timeframe1, Timeframe2, ...]
 # Timeframe: [Color, duration in 100ms increments]
+# Dict keys as per https://weather.gc.ca/weathericons/<XX>.gif
 FORECAST_ANIMATIONS = {
-    "Rain": [
-        [[BLUE, 50]],
+    6: [
+        [[RAIN, 0.3], [CLOUD, 0.3], [CLOUD, 0.3]],
+        [[CLOUD, 0.3], [RAIN, 0.3], [CLOUD, 0.3]],
+        [[CLOUD, 0.3], [CLOUD, 0.3], [RAIN, 0.3]],
     ],
-    "A mix of sun and cloud": [
-        [[LIGHTYELLOW, 25], [GREY, 25]],
+    15: [
+        [[SNOW, 0.3], [RAIN, 0.3], [RAIN, 0.3]],
+        [[RAIN, 0.3], [SNOW, 0.3], [RAIN, 0.3]],
+        [[RAIN, 0.3], [RAIN, 0.3], [SNOW, 0.3]],
     ],
-    "Chance of showers": [
-        [[BLUE, 20], [GREY, 30]],
-        [[GREY, 15], [BLUE, 20], [GREY, 15]],
-        [[GREY, 30], [BLUE, 20]],
+    0: [
+        [[SUN, 1.0]],
     ],
-    "Cloudy periods": [
-        [[GREY, 25], [LIGHTBLUE, 25]],
+    30: [
+        [[CLEARNIGHT, 1.0]],
     ],
-    "Clear": [
-        [[LIGHTBLUE, 25], [LIGHTYELLOW, 25]],
+    32: [
+        [[RAIN, 0.3], [CLEARNIGHT, 0.3], [CLEARNIGHT, 0.3]],
+        [[CLEARNIGHT, 0.3], [RAIN, 0.3], [CLEARNIGHT, 0.3]],
+        [[CLEARNIGHT, 0.3], [CLEARNIGHT, 0.3], [RAIN, 0.3]],
     ],
-    "Sunny": [
-        [[LIGHTYELLOW, 50]],
+    12: [
+        [[RAIN, 1.0]],
     ],
 }
 UNKNOWN_CONDITION = [
-    [[MAGENTA, 50]],
+    [[[255, 0, 255, 0], 1.0]],
 ]
 
 
@@ -55,10 +55,10 @@ try:
     # Convert the forecast into a serios of animations
     weather = badgerfish.data(fromstring(open(WEATHER_FILE).read()))["siteData"]
     animations = []
-    for period in weather["forecastGroup"]["forecast"][:len(PANEL_CLUSTERS)]:
+    for period in weather["forecastGroup"]["forecast"]:
         try:
-            forecast = period["abbreviatedForecast"]["textSummary"]["$"]
-            logger.info(f"""{period["period"]["$"]}: {forecast}""")
+            forecast = period["abbreviatedForecast"]["iconCode"]["$"]
+            logger.info(f"""{period["period"]["$"]}: {period["abbreviatedForecast"]["textSummary"]["$"]} ({period["abbreviatedForecast"]["iconCode"]["$"]})""")
             animations.append(FORECAST_ANIMATIONS[forecast])
         except Exception as e:
             logger.exception(e)
@@ -68,7 +68,10 @@ try:
     anim_data = []
     for animation, cluster in zip(animations, PANEL_CLUSTERS):
         for index, panel in enumerate(cluster):
-            panel_animation = animation[len(anim_data) % len(animation)]
+            panel_animation = [
+                frame[0] + [round(frame[1] * DURATION_IN_SECONDS * 10)]
+                for frame in animation[len(anim_data) % len(animation)]
+            ]
             anim_data.append([panel, len(panel_animation)] + list(panel_animation))
 
     # Composite the instructions into an Aurora command
