@@ -20,40 +20,29 @@ SNOW = hsl_to_rgbw(.5, .5, .5)
 # Panel: [Timeframe1, Timeframe2, ...]
 # Timeframe: [Color, duration in 100ms increments]
 # Dict keys as per https://weather.gc.ca/weathericons/<XX>.gif
+def solid(primary):
+    return [
+        [[SUN, 1.0]]
+    ]
+def rotate(primary, secondary):
+    return [
+        [[secondary, 0.3], [primary, 0.3], [primary, 0.3]],
+        [[primary, 0.3], [secondary, 0.3], [primary, 0.3]],
+        [[primary, 0.3], [primary, 0.3], [secondary, 0.3]],
+    ]
 FORECAST_ANIMATIONS = {
-    6: [
-        [[RAIN, 0.3], [CLOUD, 0.3], [CLOUD, 0.3]],
-        [[CLOUD, 0.3], [RAIN, 0.3], [CLOUD, 0.3]],
-        [[CLOUD, 0.3], [CLOUD, 0.3], [RAIN, 0.3]],
-    ],
-    15: [
-        [[SNOW, 0.3], [RAIN, 0.3], [RAIN, 0.3]],
-        [[RAIN, 0.3], [SNOW, 0.3], [RAIN, 0.3]],
-        [[RAIN, 0.3], [RAIN, 0.3], [SNOW, 0.3]],
-    ],
-    0: [
-        [[SUN, 1.0]],
-    ],
-    30: [
-        [[CLEARNIGHT, 1.0]],
-    ],
-    31: [
-        [[CLOUD, 0.3], [CLEARNIGHT, 0.3], [CLEARNIGHT, 0.3]],
-        [[CLEARNIGHT, 0.3], [CLOUD, 0.3], [CLEARNIGHT, 0.3]],
-        [[CLEARNIGHT, 0.3], [CLEARNIGHT, 0.3], [CLOUD, 0.3]],
-    ],
-    32: [
-        [[RAIN, 0.3], [CLEARNIGHT, 0.3], [CLEARNIGHT, 0.3]],
-        [[CLEARNIGHT, 0.3], [RAIN, 0.3], [CLEARNIGHT, 0.3]],
-        [[CLEARNIGHT, 0.3], [CLEARNIGHT, 0.3], [RAIN, 0.3]],
-    ],
-    12: [
-        [[RAIN, 1.0]],
-    ],
+    0: solid(SUN),
+    1: rotate(SUN, CLOUD),
+    2: rotate(SUN, CLOUD),
+    3: rotate(CLOUD, SUN),
+    6: rotate(CLOUD, RAIN),
+    15: rotate(RAIN, SNOW),
+    30: solid(CLEARNIGHT),
+    31: rotate(CLEARNIGHT, CLOUD),
+    32: rotate(CLEARNIGHT, RAIN),
+    12: solid(RAIN),
 }
-UNKNOWN_CONDITION = [
-    [[[255, 0, 255, 0], 1.0]],
-]
+UNKNOWN_CONDITION = solid([255, 0, 255, 0])
 
 
 try:
