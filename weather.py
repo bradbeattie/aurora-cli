@@ -6,12 +6,12 @@ from xmljson import badgerfish
 from utils import flatten, hsl_to_rgbw
 
 # Constants
-DURATION_IN_SECONDS = 10
-RAIN = hsl_to_rgbw(.7, .6, .3)
-SUN = hsl_to_rgbw(.2, .6, .6)
-CLEARNIGHT = hsl_to_rgbw(.2, .6, .6)
-CLOUD = hsl_to_rgbw(0, 0, .6)
-SNOW = hsl_to_rgbw(.5, .6, .6)
+DURATION_IN_SECONDS = 12
+RAIN = hsl_to_rgbw(.7, .5, .5)
+SUN = hsl_to_rgbw(.15, .9, .5)
+CLEARNIGHT = hsl_to_rgbw(.7, 0, 0)
+CLOUD = hsl_to_rgbw(0, 0, .5)
+SNOW = hsl_to_rgbw(.5, .5, .5)
 
 
 # Custom Effect Data Format as per http://forum.nanoleaf.me/docs/openapi
@@ -37,6 +37,11 @@ FORECAST_ANIMATIONS = {
     30: [
         [[CLEARNIGHT, 1.0]],
     ],
+    31: [
+        [[CLOUD, 0.3], [CLEARNIGHT, 0.3], [CLEARNIGHT, 0.3]],
+        [[CLEARNIGHT, 0.3], [CLOUD, 0.3], [CLEARNIGHT, 0.3]],
+        [[CLEARNIGHT, 0.3], [CLEARNIGHT, 0.3], [CLOUD, 0.3]],
+    ],
     32: [
         [[RAIN, 0.3], [CLEARNIGHT, 0.3], [CLEARNIGHT, 0.3]],
         [[CLEARNIGHT, 0.3], [RAIN, 0.3], [CLEARNIGHT, 0.3]],
@@ -56,12 +61,12 @@ try:
     weather = badgerfish.data(fromstring(open(WEATHER_FILE).read()))["siteData"]
     animations = []
     for period in weather["forecastGroup"]["forecast"]:
+        forecast = period["abbreviatedForecast"]["iconCode"]["$"]
         try:
-            forecast = period["abbreviatedForecast"]["iconCode"]["$"]
             logger.info(f"""{period["period"]["$"]}: {period["abbreviatedForecast"]["textSummary"]["$"]} ({period["abbreviatedForecast"]["iconCode"]["$"]})""")
             animations.append(FORECAST_ANIMATIONS[forecast])
-        except Exception as e:
-            logger.exception(e)
+        except KeyError:
+            logger.exception(f"""No known animation for https://weather.gc.ca/weathericons/{forecast}.gif""")
             animations.append(UNKNOWN_CONDITION)
 
     # Break the animations down into per-panel instructions
