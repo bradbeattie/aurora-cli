@@ -8,7 +8,7 @@ from utils import flatten, hsl_to_rgbw
 # Constants
 DURATION_IN_SECONDS = 12
 RAIN = hsl_to_rgbw(.7, .5, .5)
-SUN = hsl_to_rgbw(.15, .9, .5)
+SUN = hsl_to_rgbw(.145, .9, .5)
 CLEARNIGHT = hsl_to_rgbw(.7, 0, 0)
 CLOUD = hsl_to_rgbw(0, 0, .5)
 SNOW = hsl_to_rgbw(.5, .5, .5)
@@ -20,29 +20,31 @@ SNOW = hsl_to_rgbw(.5, .5, .5)
 # Panel: [Timeframe1, Timeframe2, ...]
 # Timeframe: [Color, duration in 100ms increments]
 # Dict keys as per https://weather.gc.ca/weathericons/<XX>.gif
-def solid(primary):
-    return [
-        [[SUN, 1.0]]
+def rotate(*args):
+    augmented = [
+        [arg, 1.0 / len(args)]
+        for arg in args
     ]
-def rotate(primary, secondary):
     return [
-        [[secondary, 0.3], [primary, 0.3], [primary, 0.3]],
-        [[primary, 0.3], [secondary, 0.3], [primary, 0.3]],
-        [[primary, 0.3], [primary, 0.3], [secondary, 0.3]],
+        augmented[-n:] + augmented[:-n]
+        for n in range(len(args))
     ]
 FORECAST_ANIMATIONS = {
-    0: solid(SUN),
-    1: rotate(SUN, CLOUD),
-    2: rotate(SUN, CLOUD),
-    3: rotate(CLOUD, SUN),
-    6: rotate(CLOUD, RAIN),
-    15: rotate(RAIN, SNOW),
-    30: solid(CLEARNIGHT),
-    31: rotate(CLEARNIGHT, CLOUD),
-    32: rotate(CLEARNIGHT, RAIN),
-    12: solid(RAIN),
+    0: rotate(SUN),
+    1: rotate(SUN, SUN, CLOUD),
+    2: rotate(SUN, SUN, CLOUD),
+    3: rotate(CLOUD, CLOUD, SUN),
+    6: rotate(CLOUD, CLOUD, RAIN),
+    7: rotate(CLOUD, RAIN, SNOW),
+    10: rotate(CLOUD),
+    15: rotate(CLOUD, SNOW, RAIN),
+    16: rotate(CLOUD, CLOUD, SNOW),
+    30: rotate(CLEARNIGHT),
+    31: rotate(CLEARNIGHT, CLEARNIGHT, CLOUD),
+    32: rotate(CLEARNIGHT, CLEARNIGHT, RAIN),
+    12: rotate(RAIN),
 }
-UNKNOWN_CONDITION = solid([255, 0, 255, 0])
+UNKNOWN_CONDITION = rotate([255, 0, 255, 0])
 
 
 try:
