@@ -12,6 +12,7 @@ SUN = hsl_to_rgbw(.145, .9, .5)
 CLEARNIGHT = hsl_to_rgbw(.7, 0, 0)
 CLOUD = hsl_to_rgbw(0, 0, .5)
 SNOW = hsl_to_rgbw(.5, .5, .5)
+FOG = hsl_to_rgbw(0, 0, .2)
 
 
 # Custom Effect Data Format as per http://forum.nanoleaf.me/docs/openapi
@@ -34,15 +35,23 @@ FORECAST_ANIMATIONS = {
     1: rotate(SUN, SUN, CLOUD),
     2: rotate(SUN, SUN, CLOUD),
     3: rotate(CLOUD, CLOUD, SUN),
+    4: rotate(CLOUD, CLOUD, SUN),
+    5: rotate(SUN, SUN, CLOUD),
     6: rotate(CLOUD, CLOUD, RAIN),
     7: rotate(CLOUD, RAIN, SNOW),
     10: rotate(CLOUD),
+    12: rotate(RAIN),
     15: rotate(CLOUD, SNOW, RAIN),
     16: rotate(CLOUD, CLOUD, SNOW),
+    17: rotate(SNOW),
+    24: rotate(FOG, FOG, CLOUD),
     30: rotate(CLEARNIGHT),
     31: rotate(CLEARNIGHT, CLEARNIGHT, CLOUD),
     32: rotate(CLEARNIGHT, CLEARNIGHT, RAIN),
-    12: rotate(RAIN),
+    33: rotate(CLEARNIGHT, CLOUD, CLOUD),
+    34: rotate(CLEARNIGHT, CLOUD, CLOUD),
+    35: rotate(CLEARNIGHT, CLEARNIGHT, CLOUD),
+    35: rotate(CLEARNIGHT, CLEARNIGHT, CLOUD),
 }
 UNKNOWN_CONDITION = rotate([255, 0, 255, 0])
 
