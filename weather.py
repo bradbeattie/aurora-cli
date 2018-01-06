@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 from local_settings import IP_ADDRESS, AUTH_TOKEN, WEATHER_FILE, PANEL_CLUSTERS, logger
 from nanoleaf import Aurora
+from pprint import pprint
+from utils import flatten, hsl_to_rgbw
 from xml.etree.ElementTree import fromstring
 from xmljson import badgerfish
-from utils import flatten, hsl_to_rgbw
 
 # Constants
 DURATION_IN_SECONDS = 12
 RAIN = hsl_to_rgbw(.7, .5, .5)
 SUN = hsl_to_rgbw(.145, .9, .5)
 CLEARNIGHT = hsl_to_rgbw(.7, 0, 0)
-CLOUD = hsl_to_rgbw(0, 0, .5)
+CLOUD = hsl_to_rgbw(0, 0, .66)
 SNOW = hsl_to_rgbw(.5, .5, .5)
-FOG = hsl_to_rgbw(0, 0, .2)
+FOG = hsl_to_rgbw(0, 0, .33)
 
 
 # Custom Effect Data Format as per http://forum.nanoleaf.me/docs/openapi
@@ -45,6 +46,7 @@ FORECAST_ANIMATIONS = {
     16: rotate(CLOUD, CLOUD, SNOW),
     17: rotate(SNOW),
     24: rotate(FOG, FOG, CLOUD),
+    28: rotate(CLOUD, CLOUD, RAIN),
     30: rotate(CLEARNIGHT),
     31: rotate(CLEARNIGHT, CLEARNIGHT, CLOUD),
     32: rotate(CLEARNIGHT, CLEARNIGHT, RAIN),
@@ -68,6 +70,13 @@ try:
         except KeyError:
             logger.exception(f"""No known animation for https://weather.gc.ca/weathericons/{forecast}.gif""")
             animations.append(UNKNOWN_CONDITION)
+        try:
+            precipitation = period["precipitation"]["accumulation"]["amount"]
+            assert precipitation["@unitType"] == "metric"
+            assert precipitation["@units"] == "mm", "Wasn't sure if anything other than mm would occur. Might need to augment this code to handle cm too."
+            # Todo: make use of precipitation["$"] to inform how we make RAIN panels blink (faster for heavier rain?)
+        except KeyError:
+            pass
 
     # Break the animations down into per-panel instructions
     anim_data = []

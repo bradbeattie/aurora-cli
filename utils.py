@@ -27,3 +27,9 @@ def hsl_to_rgbw(h, s, l):
         round(i * 255)
         for i in hls_to_rgb(h, l, s)
     ] + [0]
+
+
+# From https://rosettacode.org/wiki/Map_range#Python
+def map_range(a, b, s):
+    (a1, a2), (b1, b2) = a, b
+    return  b1 + ((s - a1) * (b2 - b1) / (a2 - a1))
