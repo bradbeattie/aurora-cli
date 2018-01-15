@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-from local_settings import IP_ADDRESS, AUTH_TOKEN, WEATHER_FILE, PANEL_CLUSTERS, logger
+from local_settings import IP_ADDRESS, AUTH_TOKEN, WEATHER_CITY, WEATHER_PROVINCE, PANEL_CLUSTERS, logger
 from nanoleaf import Aurora
 from utils_generic import flatten, hsl_to_rgbw
-from xml.etree.ElementTree import fromstring
-from xmljson import badgerfish
+from utils_specific import get_canadian_weather
+
 
 # Constants
 DURATION_IN_SECONDS = 12
@@ -60,7 +60,7 @@ UNKNOWN_CONDITION = rotate([255, 0, 255, 0])
 
 try:
     # Convert the forecast into a serios of animations
-    weather = badgerfish.data(fromstring(open(WEATHER_FILE).read()))["siteData"]
+    weather = get_canadian_weather(WEATHER_CITY, WEATHER_PROVINCE)
     animations = []
     for period in weather["forecastGroup"]["forecast"]:
         forecast = period["abbreviatedForecast"]["iconCode"]["$"]
